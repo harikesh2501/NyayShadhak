@@ -1,4 +1,4 @@
-cat > backend/data/mockResponses.js << 'EOF'
+
 /**
  * Mock responses for testing without actual OpenAI API
  */
@@ -23,4 +23,3 @@ const mockResponses = {
 };
 
 module.exports = mockResponses;
-EOF

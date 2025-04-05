@@ -1,0 +1,30 @@
+{
+  "name": "nyaysadhak-backend",
+  "version": "1.0.0",
+  "description": "Backend server for NyaySadhak - Legal Information Chatbot",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js",
+    "mock": "node mockServer.js",
+    "test": "jest"
+  },
+  "dependencies": {
+    "@google-cloud/translate": "^7.2.1",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "express-rate-limit": "^6.9.0",
+    "openai": "^4.0.0",
+    "winston": "^3.10.0"
+  },
+  "devDependencies": {
+    "jest": "^29.6.3",
+    "nodemon": "^3.0.1",
+    "supertest": "^6.3.3"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "license": "MIT"
+}

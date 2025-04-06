@@ -11,7 +11,7 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [selectedLanguage, setSelectedLanguage] = useState('en');
   const [isListening, setIsListening] = useState(false);
-  
+
   const supportedLanguages = [
     { code: 'en', name: 'English' },
     { code: 'hi', name: 'हिंदी (Hindi)' },
@@ -23,10 +23,13 @@ function App() {
     { code: 'kn', name: 'ಕನ್ನಡ (Kannada)' },
     { code: 'ml', name: 'മലയാളം (Malayalam)' },
     { code: 'pa', name: 'ਪੰਜਾਬੀ (Punjabi)' },
-    { code: 'ur', name: 'اردو (Urdu)' }
+    { code: 'ur', name: 'اردو (Urdu)' },
+    { code: 'or', name: 'ଓଡ଼ିଆ (Odia)' },
+    { code: 'as', name: 'অসমীয়া (Assamese)' },
+    { code: 'sd', name: 'سنڌي (Sindhi)' },
+    { code: 'ne', name: 'नेपाली (Nepali)' }
   ];
-  
-  // Moved translations outside of the component to avoid re-creation on each render
+
   const translations = {
     en: {
       welcome: "Welcome to NyaySadhak - Your Legal Information Assistant",
@@ -126,12 +129,46 @@ function App() {
       stopVoice: "آواز بند کریں",
       loading: "سوچ رہا ہوں...",
       initialMessage: "ہیلو! میں نیائے ساڈھک ہوں، آپکا قانونی مددگار۔ آج آپکو کونسی قانونی معلومات درکار ہے؟"
+    },
+    or: {
+      welcome: "ନ୍ୟାୟସାଧକକୁ ସ୍ଵାଗତ - ଆପଣଙ୍କର ଆଇନ ସହାୟକ",
+      askQuestion: "ଆପଣଙ୍କ ଆଇନ ଗତ ପ୍ରଶ୍ନ ପଚାରନ୍ତୁ...",
+      send: "ପଠାନ୍ତୁ",
+      startVoice: "ଭୟସ୍ ଆରମ୍ଭ କରନ୍ତୁ",
+      stopVoice: "ଭୟସ୍ ବନ୍ଦ କରନ୍ତୁ",
+      loading: "ଚିନ୍ତା କରୁଛି...",
+      initialMessage: "ନମସ୍କାର! ମୁଁ ନ୍ୟାୟସାଧକ, ଆପଣଙ୍କ ଆଇନ ସହାୟକ। ଆଜି ଆପଣଙ୍କୁ କଣ ଆଇନ ସୂଚନା ଆବଶ୍ୟକ?"
+    },
+    as: {
+      welcome: "ন্যায়সাধকলৈ স্বাগতম - আপোনাৰ আইনী সহায়ক",
+      askQuestion: "আপোনাৰ আইনী প্ৰশ্ন সুধক...",
+      send: "পঠাওক",
+      startVoice: "শব্দ আৰম্ভ কৰক",
+      stopVoice: "শব্দ বন্ধ কৰক",
+      loading: "চিন্তা কৰি আছো...",
+      initialMessage: "নমস্কাৰ! মই ন্যায়সাধক, আপোনাৰ আইনী সহায়ক। আজি আপোনাৰ কি আইনী তথ্যৰ প্ৰয়োজন?"
+    },
+    sd: {
+      welcome: "نياي ساڌڪ ۾ ڀليڪار - توهانجو قانوني مددگار",
+      askQuestion: "پنهنجو قانوني سوال پڇو...",
+      send: "موڪليو",
+      startVoice: "آواز شروع ڪريو",
+      stopVoice: "آواز بند ڪريو",
+      loading: "سوچيان پيو...",
+      initialMessage: "هيلو! مان نياي ساڌڪ آهيان، توهانجو قانوني مددگار. اڄ توهان کي ڪهڙي قانوني معلومات گهرجي؟"
+    },
+    ne: {
+      welcome: "न्यायसाधकमा स्वागत छ - तपाईंको कानुनी जानकारी सहायक",
+      askQuestion: "तपाईंको कानुनी प्रश्न सोध्नुहोस्...",
+      send: "पठाउनुहोस्",
+      startVoice: "भ्वाइस सुरु गर्नुहोस्",
+      stopVoice: "भ्वाइस रोक्नुहोस्",
+      loading: "सोच्दैछु...",
+      initialMessage: "नमस्ते! म न्यायसाधक हुँ, तपाईंको कानुनी सहायक। आज तपाईंलाई कुन कानुनी जानकारी चाहिन्छ?"
     }
   };
 
-  // Fix: removed translations from dependency array to prevent infinite loop
   useEffect(() => {
-    // Add initial bot message
     setMessages([
       {
         text: translations[selectedLanguage]?.initialMessage || translations.en.initialMessage,
@@ -139,59 +176,25 @@ function App() {
         timestamp: new Date().toISOString()
       }
     ]);
-  }, [selectedLanguage]); // Only depend on selectedLanguage
+  }, [selectedLanguage]);
 
   const sendMessage = async (text) => {
     if (!text.trim()) return;
-    
-    // Add user message to chat
-    const userMessage = {
-      text,
-      sender: 'user',
-      timestamp: new Date().toISOString()
-    };
-    
-    setMessages(prevMessages => [...prevMessages, userMessage]);
+    const userMessage = { text, sender: 'user', timestamp: new Date().toISOString() };
+    setMessages(prev => [...prev, userMessage]);
     setLoading(true);
-    
     try {
-      // Using relative URL - will be proxied to backend
       const response = await fetch('/api/chat', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          message: text,
-          language: selectedLanguage
-        }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: text, language: selectedLanguage }),
       });
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! Status: ${response.status}`);
-      }
-      
+      if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
       const data = await response.json();
-      
-      // Add bot response to chat
-      const botMessage = {
-        text: data.message,
-        sender: 'bot',
-        timestamp: new Date().toISOString()
-      };
-      
-      setMessages(prevMessages => [...prevMessages, botMessage]);
+      setMessages(prev => [...prev, { text: data.message, sender: 'bot', timestamp: new Date().toISOString() }]);
     } catch (error) {
       console.error('Error:', error);
-      
-      // Add error message
-      const errorMessage = {
-        text: 'Sorry, there was an error processing your request. Please try again.',
-        sender: 'bot',
-        timestamp: new Date().toISOString()
-      };
-      
-      setMessages(prevMessages => [...prevMessages, errorMessage]);
+      setMessages(prev => [...prev, { text: 'Sorry, there was an error processing your request. Please try again.', sender: 'bot', timestamp: new Date().toISOString() }]);
     } finally {
       setLoading(false);
     }
@@ -208,7 +211,6 @@ function App() {
   return (
     <div className="app">
       <Header title={translations[selectedLanguage]?.welcome || translations.en.welcome} />
-      
       <div className="app-container">
         <div className="sidebar">
           <LanguageSelector 
@@ -217,14 +219,12 @@ function App() {
             onLanguageChange={handleLanguageChange} 
           />
         </div>
-        
         <main className="main-content">
           <ChatInterface 
             messages={messages} 
             loading={loading}
             loadingText={translations[selectedLanguage]?.loading || translations.en.loading}
           />
-          
           <div className="input-area">
             <VoiceInput 
               onTranscript={handleVoiceInput}
@@ -234,7 +234,6 @@ function App() {
               startButtonText={translations[selectedLanguage]?.startVoice || translations.en.startVoice}
               stopButtonText={translations[selectedLanguage]?.stopVoice || translations.en.stopVoice}
             />
-            
             <form onSubmit={(e) => {
               e.preventDefault();
               const input = e.target.elements.messageInput;
@@ -254,7 +253,6 @@ function App() {
           </div>
         </main>
       </div>
-      
       <Footer />
     </div>
   );

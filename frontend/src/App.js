@@ -30,7 +30,7 @@ function App() {
   const translations = {
     en: {
       welcome: "Welcome to NyaySadhak - Your Legal Information Assistant",
-      askQuestion: "Ask your legal question...",
+      askQuestion: "Ask your legal question....",
       send: "Send",
       startVoice: "Start Voice",
       stopVoice: "Stop Voice",
